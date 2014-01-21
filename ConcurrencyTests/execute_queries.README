@@ -1,0 +1,114 @@
+
+execute_queries.pl: A Perl program to test Greenplum performance under a variety of user-specified workloads. 
+			Written by Matt Scaer.
+
+Usage: perl execute_queries.pl {configuration_filename} {optional_run_nickname}
+
+Components:
+	1. The execute_queries.pl program.
+	2. Supporting directories (The base_directory is specified in the configuration file discussed further below):
+        	A. query_output_directory ("$base_dir/query_output/"): This is where the output of each query is written.
+        	B. query_log_directory ("$base_dir/query_logs/"): Artifacts of each query's execution are captured here. 
+        	C. stored_runtime_sql_directory ("$base_dir/query_stored_runtime_sql/"): The actual SQL executed is recorded in this directory. 
+			This is important for variable substitution queries in particular.
+        	D. exec_summary_directory ("$base_dir/query_execution_summary/"): Two datasets are built to help with presenting the results. 
+			The first is a concatenation of the logs files, showing details of each query's execution. The second is a pivot
+			of the runs, at a per-query grain.
+        	E. set_variable_replacement_directory ("$base_dir/variable_replacement/"): This directory is where the files used in the 
+			variable substitution are stored. Specify the variable replacement in the SQL statement with a comment of this form:
+			/*+VARIABLE_REPLACEMENT_FILENAME=test_vars_1_million_rows__10_columns.dat*/
+		F. Query Directory Tree: This is discussed below. 
+	3. The configuration file allows the user to specify information about the queries to be executed, as well as global test parameters. 
+		All parameter names must begin the line. Lines beginning with a '#' are treated as commments.
+		All parameters must be present.
+		A. qd (Query Directory) lines. The user can specify one or more lines that contain the following elements:
+			A. The 'qd' line_type identifier.
+			B. The directory that contains the queries relevant to the particular row.
+			C. The method by which the next query is chosen. Options are 'random' or 'ordered'.
+			D. The number of queries in the particular row that will be executed concurrently.
+			E. The user that should be used to execute the queries. The user should not have to type a password.
+			F. Number of queries to use in the sample. Use '-1' to use all the queries in the direcory. Use a number greater than 0 to
+				randomly select that number of queries from the total population in the directory. Note that this doesn't impact
+				the execution order; for example, 5 randomly-selected queries from the entire may be used, but then executed in either
+				an ordered or random sequence. 
+			G. Example (Run 5 queries at a time from the oltp_style directory, choosing the next query in order, 
+				and run with the web_user account. Additionally, keep 1 query from bi_queries directory running during the test (picking
+				that query from a random selection of 17 from the entire directory),
+				choosing the next to run randomly from the queries in the directory, using the analytics_user account):
+				qd      /Users/scaerm/Work/Concurrency/queries/oltp_style/    ordered 5       web_user	-1
+				qd     /Users/scaerm/Work/Concurrency/queries/bi_queries/    random  1       analytics_user	17
+		B. num_simulation_ticks: How many seconds to run the test.
+		C. debug: Set to 1 if you want to see details of the execution, otherwise use 0. This parameter only effects what's displayed on the screen.
+		D. db_name: The database that should be used as the target of the queries.
+		E. actually_run_query_against_db: Set to 1 when running the test. Use 0 to experiment with your configuration setting. Each query only
+			sleeps a random interval rather than executing.
+		F. base_dir: The root of the directory tree containing the supporting directories mentioned above.
+		G. os_type: Use linux when running the test on the DCA. Use mac for testing on your laptop.
+		H. sql_client: The options for sql_client are psql or neglaysql (Note: Only psql works for now.)
+		I. require_query_filename_extension: Use a value of 1 to require the filename extension to appear in the queries to be executed.
+			This is useful for when you have other files in your query directories than what you want to execute. Otherwise, use 0.
+		J. query_filename_extension: Example .sql. This is the string that must appear in the query filename is the require_query_filename_extension
+			value is set to 1.
+		K. max_per_query_executions: This parameter can be used in an 'ordered' execution setting to limit the number of times a query in the
+			directory is executed. Set to 0 to not use.
+		L. min_pre_execution_sleep_interval: The minimum number of seconds to sleep before executing each query. Set to the same value as max_pre_execution_sleep_interval
+			to sleep only for that number of seconds; otherwise a random value between the min and max will be used. Set to 0 to not use. 
+		M. max_pre_execution_sleep_interval: The maximum number of seconds to sleep before executing each query. Set to the same value as min_pre_execution_sleep_interval
+			to sleep only for that number of seconds; otherwise a random value between the min and max will be used. Set to 0 to not use.
+		N. min_post_execution_sleep_interval: The minimum number of seconds to sleep after executing each query. Set to the same value as max_post_execution_sleep_interval
+                        to sleep only for that number of seconds; otherwise a random value between the min and max will be used. Set to 0 to not use.
+		O. max_post_execution_sleep_interval: The maximum number of seconds to sleep before executing each query. Set to the same value as min_post_execution_sleep_interval
+                        to sleep only for that number of seconds; otherwise a random value between the min and max will be used. Set to 0 to not use.
+		P. staggered_launch_window_secs: If a value greater than zero is chosen, queries will sleep according to min_staggered_launch_window_interval and
+			max_staggered_launch_window_interval before beginning their execution. Useful when testing ver high concurrency.
+		Q. min_staggered_launch_window_interval: During the staggered launch window, sleep at least this number of seconds before starting. Set to the same value
+			as max_staggered_launch_window_interval to sleep exactly that number of seconds. Otherwise, a random number of seconds between the min and 
+			max will be used. Set to 0 to not use.
+		R. max_staggered_launch_window_interval: During the staggered launch window, sleep at most this number of seconds before starting. Set to the same value
+                        as min_staggered_launch_window_interval to sleep exactly that number of seconds. Otherwise, a random number of seconds between the min and 
+                        max will be used. Set to 0 to not use.
+		S. sql_run_mode: This flag will allow the SQL to be run as-is, uncomment a comment containing an EXPLAIN/EXPLAIN ANALYZE or have the program place an
+			EXPLAIN/EXPLAIN ANALYZE before the first 'select' (case insensitive). Valid modes are the following:
+			1 = Run the SQL as-is.
+			2 = Uncomment an EXPLAIN or EXPLAIN ANALYZE embedded in a comment of the form: /*+EXPLAIN_STATEMENT_STRING=EXPLAIN ANALYZE*/  (case insensitive)
+			3 = Have the program place a ' EXPLAIN ' string before the first occurrance of 'SELECT' (case insensitive).
+			4 = Have the program place a ' EXPLAIN ANALYZE ' string before the first occurrance of 'SELECT' (case insensitive).
+		T. kill_full_filename: Touch a file with the name specified by the kill_full_filename and the execution of the test will stop ASAP.
+	
+ 
+Output:
+	1. Standard, un-pivoted output columns:
+		A. QueryType: A placeholder for a feature to group rows of query directories. I think it's always set to 1.
+		B. QueryID: The name of the query.	
+		C. QueryRunID: The concatenation of the query_type, the query_id, and a integer sequence. Makes this column unique.
+		D. StartTimeHuman: The full year, month, day, hour, minute, second when the query started.
+		E. StartTimeEpoch: The number of epoch seconds when the query started.
+		F. EndTimeHuman: The full year, month, day, hour, minute, second when the query ended.
+		G. EndTimeEpoch: The number of epoc seconds when the query ended.
+		H. NumRows: The number of rows in the output.
+		I. Helper: Hardcoded to the value of 1. Useful for pivoting.
+		J. Runtime: The execution time in seconds.
+		K. LaunchFlag: A one-character flag that identifies if the query started in which of the following two states:
+			1. S(taggered) Launch Window.
+			2. N(ormal) Test Window.
+		L. CompleteFlag: A one-character flag that identifies if the query started in which of the following three states:
+			1. S(taggered) Launch Window.
+                        2. N(ormal) Test Window.
+			3. A(fter) Normal Test window.
+		M. SuccessFlag
+		N. RunName
+		O. RunNickname
+
+	2. Pivoted output columns:
+		A. Query: The Query_ID.
+		B. SuccessFlag
+		C. NumRuns: The number of completed executions.
+		D. MeanRuntime: The average runtime in seconds.
+		E. MinRuntime: The minimum number of execution seconds.
+		F. MaxRuntime: The maximum number of execution seconds.
+		G. StdDev: The standard deviation of the query's runtimes.
+		H. RelativeDev: Relative Deviation. A very useful metric. It's the (StdDev / MeanRuntime), as a percent.
+ 		I. RunName
+		J. RunNickname
+
+
