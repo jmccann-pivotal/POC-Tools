@@ -6,9 +6,13 @@ bloat.sh - Vacuum Analyze all catalog tables in a database to reduce bloat
 
 check_roles_resque.sql - See which users are in which resource queues
 
+DCA_Version.sh - see what the DCA version is
+
 format_load_logs.sh - Reads the output of a series of INSERT/SELECT from
 external tables scripts and generates CSV file of the tables and number
 of rows inserted.
+
+install_madlib.sh - commands needed to install madlib after downloading
 
 list_sequences.sql - list all active sequences in a database
 
