@@ -1,0 +1,77 @@
+SAS Brown Bag Training #4 - 06/22/2012
+
+Using HPA.
+
+HPA requires full rack DCA.
+
+Scoring Accelerator runs "in-database".
+
+HPA allows SAS queries to run "in-memory" next to GP.
+
+SAS uses "MPI" to communicate between segement servers.
+
+User connects to master server where SAS is running.
+
+There are not processes running full time on the segment servers.  Processes start only as 
+needed when a SAS query is going on, then die.  There are no daemons.
+
+To use HPA, you need a client tier and appliance tier.
+
+On client side, you can use Enterprise Miner (if HPA-enabled).  Have to have BASE SAS and SAS/STAT on
+client side - required(minimum).   SAS/Access required to talk to HPA and you need SAS High Performance
+Analytics has to be licensed.
+
+On appliance side, you need SAS Embedded Processes, In-Memory Analytics and SAS Grid Manager.
+
+To configure client, configure SAS-Access Interface, and, critically, need ssh key  to support a 
+bi-directional secure connection to the appliance.
+
+GP 4.2 required for HPA.
+
+You get an RPM file and a script to copy to the DCA.
+
+Need to create a file with all segment host names called "gridhosts".  Contain name of master and 
+segment hosts.
+
+Has to be created before running the self-extracting install.
+
+SAS/GP install instructions are pretty explicit about the install.
+
+There will be a .ssh/authorizedkeys2 file in SAS user client directory.  Will have a key for the client
+system and the DCA master.
+
+Check the install with install/bin/mpirun -f <gridhosts path/file name>.  LD_LIBRARY_PATH needs to be
+modified to include mpi shared libs in it.
+
+The procs enabled for inmemory need to be prefixed with HP.  Example:  NEURAL needs to be HPNEURAL.
+
+Other SAS procs will run but NOT in parallel.  Only HP<procs> will be parallized.
+
+Files located on Master in /opt/TKGrid.
+
+All the shared libraries in this directory are copied to segment servers on install based on 
+GridHosts file created above.
+
+If execution mode says "On Client", this did not run on the database but only on the client.
+
+To run on database, you have to set up some options:  GRIDHOST, GRIDDATASERVER, GRIDINSTALLLOC,
+TKSSH_USER, TKSSH_IDENTITY (where is key located)
+
+If run on database, execution mode will say "Distributed alongside GreenPlum".
+
+SAS Grid can be used in either Utility or Parallel computing modes.  Utility manages workload of
+grid environment using least utilized node of the grid.  
+
+Parallel executes different parts of the model on the grid nodes to execute model in parallel.
+
+Typical infrastructure is 1 GPDB full rack, and a second rack with:
+
+half rack ISILON
+quarter rack SAS Metadata Management Console
+quarter rack SAS GRID
+
+
+
+
+
+

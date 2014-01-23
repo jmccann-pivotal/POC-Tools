@@ -1,0 +1,89 @@
+SAS Training - June 8, 2012
+
+SAS Bulk Loading with gpfdist
+
+Install/Configure/Test
+
+Must use gpfdist, not gpload.
+
+gpfdist runs on window server talking to GPDB
+
+Must have connectivity set on SAS side set with "libname" command.
+
+create table with 
+BULKLOAD
+BL_HOST (host running gpfdist)
+BL_PORT (gpfdist port)
+
+environment variable BL_USE_PIPE needs to be set on Unix environment to stream data with gpfdist.
+
+multi-tier architecture is 4 levels max
+
+Client:  
+
+SAS Data Integration Studio
+Enterprise Guide
+Enterprise Miner Client
+Mgmt Console
+
+Server:
+
+Various SAS servers - BI, EDI, Metadata, EM
+
+Low Level:   computer servers (gpdb)
+
+Most SAS users use procs and datastep (macros) for loading data, not SQL.
+
+load occurs during "data" step
+
+Make sure you include "DISTRIBUTED_BY" clause in data step.  DISTRIBUTED_BY='distributed by(id)'
+
+SAMPLE FROM COVENTRY HEALTH:
+
+libname sastbls 'SAS-data-library';
+libname gptabls greenplm host="pacr-srv-dwa202" db=cdwpoc user=gp_sas password=password schema=sas_sandbox;
+ 
+proc sql;
+create table gptabls.mynewtbl
+    (bulkload=YES
+     BL_HOST="pacr-srv-chc044.cvty.com"
+     bl_port='8082'
+     bl_protocol='gpfdist')
+        as select * from sastbls.mysastbl;
+Quit;
+
+BL_ENCODING='LATIN1' - seems to work best for SAS
+
+Table is created based on what the data looks like.   Cannot do columnar table creation.
+You could create a table up front with the columnar append and just use the "append" proc to load it.
+
+Adding data to a table is done with an "append" proc.   It skips the create table step but creates
+an external table.   Have to be sure data sets are the same.
+
+Data Integration Studio is the tool used to load data into GreenPlum.
+
+If multi-tier architecture, you have to go into management console and set up GreenPlum connectivity 
+there so all other tools can see it.
+
+SAS Management console manages all SAS tools.  Metadata Server must be running for SAS Management
+Console can see everything.
+
+JBoss needs to be running for Java.
+
+Object Spawner and Remote Managment services need to be running as well.
+
+Server Manager is where you add the GreenPlum server.   Wizard walks you through this.  Sets up all the
+information.
+
+After server is set up, then you need to set up the connection library.
+Then register tables in the database.
+
+When you do a join, it will say it is creating a table but that is in SAS, not GP.
+
+SAS Enterprise Guide is GUI way to create SAS programs.
+
+In Data Loader, specifiy options in Options tab to utilize GreenPlum features.
+
+This will generate the same code we were shown earlier for complex load jobs.
+
+

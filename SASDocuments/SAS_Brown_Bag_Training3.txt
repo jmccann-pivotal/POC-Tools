@@ -1,0 +1,67 @@
+SAS Brown Bag Training - June 15, 2012
+
+Two primary methods to analyze data - in-database and in-memory.
+
+This session covers in-database; in-memory is for HPA and will be covered next week.
+
+SAS Stat not covered here, but if used, you have to be careful about which things can be done
+in-memory and which in-database.
+
+They call analytics extracting data and putting it in "analytics warehouse" (SAS Vision).
+
+Build model in memory but users will work in-database.
+
+Requires SAS 9.3 to run Enterprise Miner and Scoring Accelerator.
+
+In-database procs:
+
+FREQ
+RANK
+REPORT
+SORT
+SUMMARY/MEANS
+TABULATE
+
+These change and need to check SAS doc for latest in-database.    These run on almost every appliance
+currently (not just GP).
+
+Only GP and TeraData support high performance analytics.
+
+GreenPlum 4.0 is required to work with current version of SAS for Scoring Accelerator.  
+Can't use latest version because procedures are complied and SAS doesn't want to re-compile 
+for every release.   There is a patch that allows SA to work with 4.2.1.   
+Requires RPQ to get this patch in a later version.
+
+FREQ is good routine to use to check for missing values in database.
+
+Using a row limit option will change whether data is running in-database or not.
+
+SAS Scoring Accelerator is moving computation from the SAS ADW to GreenPlum.
+
+You have to install SAS UDFs in the database before scoring accelerator will work correctly.
+
+Generate model in SAS - generates files score.sas, score.xml, format catalog.   Using SAS Access
+for GreenPlum and Model Publishing Macro, these files are installed in GPDB.
+
+To use this with EM, you need to install SA from SASFormatsLibraryForGreenplum.
+
+Need an RPQ on the GP side to install accelgplmfmt-X-X-X_lax.sh (scoring accelerator functions).
+
+On the GP appliance, go to bin directory under this and run CopySASFiles.sh
+
+There has to be a schema named 'saslib' in the database that the functions will be created under.
+
+SAS has to run a proc to enable all these UDFs.
+
+These functions are basically 4 UDFs that provide GP-specific wrappers for SAS functions.
+
+Model generation downloads code to a file system.   You need to see where that code is created
+in order to review different models.
+
+There is a sample for how to do this in the SAS documentation.
+
+when published, new set of UDFs are created in public schema of database you are testing with.
+
+Then SQL can be run using these functions to generate the data.
+
+
