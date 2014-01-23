@@ -1,0 +1,37 @@
+To build the public.key and secret.key files:
+
+gpg --gen-key   - follow instructions.  Did not use passphrase.
+
+gpg --list-secret-keys   - find the keys you generated
+
+
+/home/gpadmin/.gnupg/secring.gpg
+--------------------------------
+sec   1024D/C4F83D3E 2012-12-03
+uid                  timgeary (key1) <timothy.geary@emc.com>
+ssb   2048g/2B3C5FF9 2012-12-03
+
+sec   1024D/B4CEE915 2012-12-03
+uid                  gpadmin (gpadmin key) <gpadmin@emc.com>
+ssb   2048g/638C8E38 2012-12-03
+
+sec   1024D/8AF2B704 2012-12-04
+uid                  Jim McCann (Test of PGP Gen-Key) <jim.mccann@emc.com>
+ssb   2048g/732D5C15 2012-12-04
+
+
+gpg -a --export XXXXXXX > public.key   From list-secret-keys, this is the entry
+next to "ssb"    In my case, it was 732D5C15.
+
+gpg -a --export-secret-keys XXXXXX > secret.key     From list-secret-keys,
+this is the entry next to "sec".  In my case, it was 8AF2B704.
+
+Files using the PGP encryption functions and public/private keys:
+
+pgptable.sql - creates the table used - username and a social security number
+validate_myusers.sh - checks the key used to encrypt data
+load_a_user.sh - given a user and an SS number, loads a row
+decrypt_myusers.sh - decrypts all rows in the table
+
+load_myuser.sh and load_myuser2.sh were first cuts at adding users.
+

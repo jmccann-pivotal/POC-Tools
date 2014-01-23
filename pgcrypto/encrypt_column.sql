@@ -1,0 +1,45 @@
+--
+--	Function to return secret PGP key
+--
+
+
+create or replace function public.encrypt_column( text ) 
+returns bytea as $$
+
+begin
+
+return pgp_pub_encrypt ($1, dearmor( '
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+mQGiBFC+Dx0RBAC4xmPQ02zBVoFKX8xUsPujcWYVnMTjERCKBp2GzsaG8jAzrh7U
++aQNin3OsgnDQcpB8k0iIpOlz4Vfc1cNt7FnXHzaoUGNoKpEHvV1qZCLXyUdN6+y
+PKRwGC5XRmmWxXjYfY78YRpn5kTGBJW5mvX0Frf1hJH1bfn+euXzVlvANwCgrAfD
+iCSfyI4B8wvMN8V7r2daeYMD/3GsI2XuTgOZb4IRxJycZT5jdx1x7sBqwL8xCWCD
+h8UL3nt9JDozwwh2XtV96vtRgz4yMpuYq1rbAuTa2AEfBNwYM92aZgZSDhdrxamz
+1RAOdhd1o7LK2lg39k0vrMGRnqSX+pvH1EYaN8g9KqG4Y+HjqlfZSdkuiWbLsidd
+SIyMBACsOiAPguAv/xgOEoWC117qywD+23HY6kxU+cvSXg4SXTBHNtvvHgYK/4al
+Hoz3Uc9fa/PI/7Qw3k/aVSuQlTb9yGXj42pqs56wnaBFjTRn/NVStqZEShElDuJJ
+mX5QkI0OonHyhZP30QbVCiy9Rtq5CHTW4NfJVHo+UeQR3vOtmLQ1SmltIE1jQ2Fu
+biAoVGVzdCBvZiBQR1AgR2VuLUtleSkgPGppbS5tY2Nhbm5AZW1jLmNvbT6IYAQT
+EQIAIAUCUL4PHQIbAwYLCQgHAwIEFQIIAwQWAgMBAh4BAheAAAoJELybigKK8rcE
+P1QAoI35CNNI5RIdUD4tDmEdjB0GRm4XAJ0VPdRKnhGCYcXUNCCEuf0SRKxtLbkC
+DQRQvg8jEAgAtRs/S8BDoYgVqMbqwS1O0GmNJx5iVQtVwPLC6SvIXOhvvkED/WcF
+6jgBVLXCOGlOZUGtK4zpr4qZZOjbXKycSzmgj2nNnNslgloH0kt8tkMCKVMTUtxZ
+Tnl6895hfKOBpfjqt1Ud6Sgso+TTYbqh00Z2vkG+zvLtQEfDAYSgrbFX6BLBLl+Q
+qjcs59sy6NMotvayDdYCM9yfph4G6Wgm6MAZKs6vttmokxqEf7QinFtEpVkPysFI
+0VWZ2s0K4Dx+qohi+R+Etlzr6Ggf8WeRt6znNFn0TKjCzCDPO6Hx3asj7qOnX4xB
+KE5pkqaNK1cilhFDHiTjCFQoUdgzrzxIxwADBQf+I0uoAMVE1B+RxoTilz+e8InH
+KAXP8se8wTIFILw1AFi+AAX8IqQB/tBZbQDme/9TnSLnwE/6qMl7RpmixpfjyFV3
+a7cvhJGz4dO3bnGg1v86MivvNYTP76pPDTtzeNQB8NipXI9+Vuh2xPiUrh6HB1y9
+kbfZMC0Ks1PRkS+IXJ24cwyIeB34hxOlR823oWUvlGWn/0knBOr+0URUQtgCUvvS
+NDfLsmsZhtuk9D2IvhvaRorG7wsJgvNF5E8KbNMBuL1K5A+o389NUs91t9w0Te4t
+4J54hyRnzAvEj5NtSoAdnzXn8EF7/FJ/kNcDD2Q8RVfSWn4fHgw26G9/Aw+B+YhJ
+BBgRAgAJBQJQvg8jAhsMAAoJELybigKK8rcEyckAoKgeg+OEblXYQBhq8mE3PrFV
+Dm6BAKCSb6wSu4rObJw/BEUVvM0O/xOqTw==
+=Jeae
+-----END PGP PUBLIC KEY BLOCK-----
+'));
+
+end; $$
+language 'plpgsql';
