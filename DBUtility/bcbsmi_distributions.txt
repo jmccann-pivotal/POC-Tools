@@ -1,0 +1,161 @@
+Table: analytics_bcbsmi.discharge
+ column_number | distribution_column 
+---------------+---------------------
+             1 | dischargeid
+(1 row)
+
+Table: analytics_bcbsmi.discharge_claim
+ column_number | distribution_column 
+---------------+---------------------
+             3 | dischargeid
+(1 row)
+
+Table: analytics_bcbsmi.event_catalog
+ column_number | distribution_column 
+---------------+---------------------
+             1 | cm_event_catalog_id
+(1 row)
+
+Table: analytics_bcbsmi.event_code
+ column_number | distribution_column 
+---------------+---------------------
+             1 | cm_event_catalog_id
+(1 row)
+
+Table: analytics_bcbsmi.event_definition
+ column_number | distribution_column 
+---------------+---------------------
+             2 | event_definition_id
+(1 row)
+
+Table: analytics_bcbsmi.event_definition_detail
+ column_number | distribution_column 
+---------------+---------------------
+             3 | event_definition_id
+(1 row)
+
+Table: analytics_bcbsmi.event_definition_detail_blow_up
+ column_number | distribution_column 
+---------------+---------------------
+(0 rows)
+
+Table: analytics_bcbsmi.measure_benefit
+ column_number | distribution_column 
+---------------+---------------------
+             2 | flowchart_id
+(1 row)
+
+Table: analytics_bcbsmi.memberaudit
+ column_number | distribution_column 
+---------------+---------------------
+             1 | memberid
+(1 row)
+
+Table: analytics_bcbsmi.members_to_process
+ column_number | distribution_column 
+---------------+---------------------
+             1 | member_id
+(1 row)
+
+Table: analytics_bcbsmi.output_member_months
+ column_number | distribution_column 
+---------------+---------------------
+             2 | member_id
+(1 row)
+
+Table: analytics_bcbsmi.process_history
+ column_number | distribution_column 
+---------------+---------------------
+             1 | process_name
+(1 row)
+
+Table: analytics_bcbsmi.reporting_population_enrollment_segment
+ column_number | distribution_column 
+---------------+---------------------
+             1 | member_id
+(1 row)
+
+Table: analytics_bcbsmi.reporting_population_filter
+ column_number |   distribution_column   
+---------------+-------------------------
+             1 | reporting_population_id
+(1 row)
+
+Table: analytics_bcbsmi.xref
+ column_number | distribution_column 
+---------------+---------------------
+             1 | cm_event_catalog_id
+             2 | xref_id
+(2 rows)
+
+Table: analytics_bcbsmi.xref_adsc
+ column_number | distribution_column 
+---------------+---------------------
+(0 rows)
+
+Table: analytics_bcbsmi.xref_ambulsurgery
+ column_number | distribution_column 
+---------------+---------------------
+             4 | ambulsurgery
+             3 | value
+             2 | xref_id
+(3 rows)
+
+Table: analytics_bcbsmi.xref_drg
+ column_number | distribution_column 
+---------------+---------------------
+             4 | drg
+             3 | value
+             2 | xref_id
+(3 rows)
+
+Table: analytics_bcbsmi.xref_event_rule
+ column_number | distribution_column 
+---------------+---------------------
+             3 | code_type_id
+             5 | code_value
+(2 rows)
+
+Table: analytics_bcbsmi.xref_event_rule_count
+ column_number | distribution_column 
+---------------+---------------------
+             2 | event_definition_id
+(1 row)
+
+Table: analytics_bcbsmi.xref_majorsurgery
+ column_number | distribution_column 
+---------------+---------------------
+             4 | majorsurgery
+             3 | value
+             2 | xref_id
+(3 rows)
+
+Table: analytics_bcbsmi.xref_pos
+ column_number | distribution_column 
+---------------+---------------------
+(0 rows)
+
+Table: analytics_bcbsmi.xref_providertype
+ column_number | distribution_column 
+---------------+---------------------
+             2 | xref_id
+(1 row)
+
+Table: analytics_bcbsmi.xref_roomboard
+ column_number | distribution_column 
+---------------+---------------------
+(0 rows)
+
+Table: analytics_bcbsmi.xref_rxcategory
+ column_number | distribution_column 
+---------------+---------------------
+             5 | position
+             4 | rxcategory
+             3 | value
+(3 rows)
+
+Table: analytics_bcbsmi.xref_tob
+ column_number | distribution_column 
+---------------+---------------------
+(0 rows)
+

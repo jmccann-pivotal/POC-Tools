@@ -1,0 +1,15 @@
+#
+# Options file for sqoop
+#
+
+import
+--driver
+com.pivotal.jdbc.GreenplumDriver
+--connect
+"jdbc:pivotal:greenplum://192.168.1.18:5432;database=tpch"
+--username
+gpadmin
+--password
+ximr0fni
+--warehouse-dir
+/tpch

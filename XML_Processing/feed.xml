@@ -1,0 +1,13 @@
+<feed>
+ <header>
+ </header>
+ <data>
+   <ip address="1.2.3.4" consecutive_listings="a" listing_ratio="b" reputation="c">
+     <behaviour name="d" hostility="e" confidence="f" />
+   </ip>
+   <ip address="5.6.7.8" consecutive_listings="g" listing_ratio="h" reputation="i">
+     <behaviour name="j" confidence="k" />
+     <behaviour name="l" confidence="m" />
+   </ip>
+</data>
+</feed>

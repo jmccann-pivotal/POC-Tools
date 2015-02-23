@@ -14,7 +14,7 @@ DB=$1
 
 echo "Installing Oracle functions in database $DB"
 
-psql -e -d $DB < /usr/local/greenplum-db/share/postgresql/contrib/orafunc.sql > install_orafuncs.err 2>&1
+psql -e -d $DB < $GPHOME/share/postgresql/contrib/orafunc.sql > install_orafuncs.err 2>&1
 
 echo "Oracle functions installed in $DB"
 

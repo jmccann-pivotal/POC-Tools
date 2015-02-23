@@ -1,0 +1,140 @@
+#!/usr/bin/env python
+
+import sys, os, stat
+import exceptions
+from datetime import datetime
+from optparse import OptionParser
+
+
+# set up the command line arguments
+
+def setOptions():
+
+# setup command line parser options
+        usage="usage: %prog [options]"
+        parser=OptionParser(usage=usage,version="%prog1.0")
+# tell it what the options should be
+        parser.add_option('-d','--datadirs', action='store', dest='numDataDirs',
+		help='number of /data directories on the system, default 4', default='4')
+        parser.add_option('-n','--dirname', action='store', dest='dirName',
+		help='base name of location where data is stored, default /data', default='/data')
+        parser.add_option('-s','--segments', action='store', dest='numSegments',
+                help='number of primary segments per server, mirrors will match.  default 4', default='4')
+        parser.add_option('-a','--arrayname', action='store', dest='arrayName',
+                help='Name of the cluster/array default is \'GreenplumCluster4\'', default='GreenplumCluster')
+        parser.add_option('-m','--master', action='store', dest='masterName',
+                help='Name of the master host default is \'mdw\'', default='mdw')
+
+	return (parser)
+
+# build the primary and mirror data lists
+
+def dataList(dirs,segs,type):
+
+	segment_count = int(segs)
+
+#	print dirs
+#	print "number of segs = " + segs
+
+	if type == 'primary':
+		typedir = 'DATA_DIRECTORY'
+	else:
+		typedir = 'MIRROR_DATA_DIRECTORY'
+
+	declare = "declare -a "+ typedir + "=("
+
+	for lst in dirs:
+		for i in range(segment_count):
+			declare = declare+lst+"/"+type+" "
+	declare = declare + ")"
+
+	return declare
+
+# read the default GPDB gpinitsystem template and output the
+# modified gpinitsystem file
+
+def buildFile(gppath,directories,segments,arrayName, masterName):
+
+	segment_count = int(segments)
+
+	initfilepath = gppath+'/docs/cli_help/gpconfigs/gpinitsystem_config'
+
+	try:
+		infile = open(initfilepath,'r')
+	except Exception, e:
+		print "Unable to open " + initfilepath
+		print e
+		return
+
+	for line in infile:
+	
+# put in the array/cluster name
+		if line.startswith('ARRAY_NAME'):
+			print 'ARRAY_NAME="'+arrayName+'"'
+			continue
+# put in the master host name
+		if line.startswith('MASTER_HOSTNAME'):
+			print 'MASTER_HOSTNAME=' + masterName
+			continue
+# build the segment list for the primary segments
+		if line.startswith('declare -a DATA_DIRECTORY'):
+			print dataList(directories,segments,'primary')
+			continue
+# build the segment list for the mirror segments
+		if line.startswith('#declare -a MIRROR_DATA_DIRECTORY'):
+			print dataList(directories,segments,'mirror')
+			continue
+# fix the mirror attributes
+		if line.startswith('#MIRROR_'):
+			print line.replace('#','').strip('\n')
+			continue
+
+		if line.startswith('#REPLICATION_PORT_BASE'):
+			print line.replace('#','').strip('\n')
+			continue
+
+		print line.strip('\n')
+
+	infile.close()
+
+
+def main(argv):
+
+
+	parser  = setOptions()
+
+	# parse the options
+        (opts,args) = parser.parse_args()
+
+	if (len(argv) < 2):
+		parser.print_help()
+		sys.exit(0)
+
+# 	print "Number of data directories = ",opts.numDataDirs
+#	print "Data directory root name = ", opts.dirName
+#	print "Number of primary segments = ",opts.numSegments
+#	print "Array Name = ", opts.arrayName
+#	print "Master Host = ",opts.masterName
+
+	dirlist = []
+
+	for i in range(int(opts.numDataDirs)):
+		dirlist.append(opts.dirName+str(i+1))
+
+#	print dirlist
+
+# check to make sure we can get to the $GPHOME directory
+
+	gppath = os.getenv('GPHOME')
+
+	if gppath == None:
+		print "Unable to locate $GPHOME directory.  Are you logged in as gpadmin?"
+		sys.exit(-1)
+
+	buildFile(gppath, dirlist, opts.numSegments,opts.arrayName, opts.masterName)
+
+	sys.exit(0)
+
+if __name__ == "__main__":
+        main(sys.argv[1:])
+
